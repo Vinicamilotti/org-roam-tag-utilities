@@ -26,7 +26,7 @@
 	(message "%s" toWrite)
 	(setq value (cons toWrite value))
 	)
-      ) 'a)
+      ))
   )
 (message "%s" (linksByTag "Git"))
 (provide 'tag-list)
