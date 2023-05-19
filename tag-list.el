@@ -1,7 +1,17 @@
-;;; package -- Sumary
+;;; roam-tag-utilities -- simple utilities for tags in orgroam
+
+;; GNU License
+
+;; Autor: Vinicius Camilotti <vinicamilotti@gmail.com>
+;; Keywords: lisp
+;; Version: 0.0.1-a
+
 ;;; Commentary:
-;;;; In test
+
+;; In test
+
 ;;; Code:
+(require 'org-roam)
 (defun my/org-roam-filter-by-tag (tag-name)
   (lambda (node)
     (member tag-name (org-roam-node-tags node))))
