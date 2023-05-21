@@ -68,7 +68,25 @@
       )
   )
 
-(mesage "%s" (org-roam-links-by-matching-tags '("Git" "Santandercoders")))
+(defun get-all-roam-tags ()
+  "Return all available tags."
+  (seq-uniq (org-roam-db-query [:select tag :from tags]))
+  )
+(defun org-roam-insert-by-tag ()
+  "Insert all tagged notes at pointer."
+  (interactive)
+  (setq tag (let ((choices (get-all-roam-tags)))
+	    (message "%s" (completing-read "Select one tag:" choices))))
+  (setq nodes-list (org-roam-links-by-tag tag))
+  (setq list-formated (let (value)
+    (dolist (element nodes-list value)
+      (setq toWrite (format "** %s\n" element))
+      (setq value (cons toWrite value)))))
+  (let (value)
+    (dolist (element list-formated value)
+    (insert element)
+    ))
+  )
 
 (provide 'tag-list)
 
