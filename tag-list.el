@@ -14,6 +14,11 @@
 
 (defvar org-roam-tags-default-sort "Date")
 
+(defun sort-list-of-lists (list)
+  "Sort a (LIST) of lists by its car."
+  (cl-sort list '< :key 'car)
+  )
+
 (defun org-roam-date-get-timestamp (file)
   "Return the date of a given (FILE)."
   (setq raw-path
@@ -47,35 +52,29 @@
 (defun org-roam-links-by-tag(tag)
 "Return a sorted list of org-roam links with matching tags (TAG)."
   (setq list (my/org-roam-list-notes-by-tag tag))
-  (let (value)
+  (setq links (let (value)
     (dolist (element list value)
       (setq datestring (string-to-number (org-roam-date-get-timestamp element)))
       (setq rawTitle (org-roam-db-query [:select TITLE :from nodes :where (= FILE $s1) ] element))
       (setq rawId (org-roam-db-query [:select ID :from nodes :where (= FILE $s1)] element))
       (setq title (car rawTitle))
       (setq id (car rawId))
-      (setq date (org-roam-date-trasnform-date (org-roam-date-get-timestamp element)))
-      (setq link (format "[[id:%s][%s]] - %s" (car id) (car title) (org-roam-date-trasnform-date datestring)))
-      (setq value (cons link value))
-      )
-    )
+      (setq link (format "[[id:%s][%s]]" (car id) (car title)))
+      (setq toReturn (list datestring link))
+      (setq value (cons toReturn value))
+      
+    )))
 	
-  ;;(cl-sort links '< :key 'car)
-  ;;(setq sorted '())
-    ;;(dolist (element links sorted)
-      ;;(setq only-link (car(cdr element)))
-      ;;(add-to-list 'sorted only-link t)
+  (cl-sort links '< :key 'car)
+  (setq sorted '())
+    (dolist (element links sorted)
+      (setq only-link (car(cdr element)))
+      (add-to-list 'sorted only-link t)
 
-      ;;)
+      )
     
     )
 
-  
- 
-  
-(setq teste (org-roam-links-by-tag "Git"))
-(message "%s" teste)
-;;(message test)
 (defun org-roam-tag-search(tags)
   "Search notes via list of tags (TAGS)."
   (let (value)
@@ -94,26 +93,25 @@
 (defun org-roam-links-by-matching-tags(tags)
   "Return a list of links based on a list of (TAGS)."
   (setq files (org-roam-matching-tags-search tags))
-  (setq links (let (value)
+  (setq links (sort-list-of-lists (let (value)
     (dolist (element files value)
-      (setq datestring (org-roam-date-get-timestamp element))
+      (setq datestring (string-to-number (org-roam-date-get-timestamp element)))
       (setq rawTitle (org-roam-db-query [:select TITLE :from nodes :where (= FILE $s1) ] element))
       (setq rawId (org-roam-db-query [:select ID :from nodes :where (= FILE $s1)] element))
       (setq title (car rawTitle))
       (setq id (car rawId))
-      (setq link (format "[[id:%s][%s]] - %s" (car id) (car title) (org-roam-date-trasnform-date datestring)))
-      (setq toReturn (list (string-to-number datestring) link))
+      (setq link (format "[[id:%s][%s]]" (car id) (car title)))
+      (setq toReturn (list datestring link))
       (setq value (cons toReturn value))
       )
     )
-   )
-  (cl-sort links #'< :key 'car)
-  (setq sorted '())
-    (dolist (element links sorted)
-      (setq only-link (car(cdr element)))
-      (add-to-list 'sorted only-link t)
+   ))
 
-      )
+  (let (only-link)
+    (dolist (element links only-link)
+      (setq outro (car(cdr element)))
+      (add-to-list 'only-link outro t))
+    )
   )
 
 (defun get-all-roam-tags ()
@@ -151,7 +149,7 @@
   )
 
 
+(org-roam-insert-by-tag)
 (provide 'tag-list)
 
 ;;; tag-list.el ends here
-(org-roam-insert-by-tag)
