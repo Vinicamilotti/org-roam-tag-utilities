@@ -11,6 +11,27 @@
 ;; In test
 
 ;;; Code:
+
+(defvar org-roam-tags-default-sort "Date")
+
+(defun org-roam-date-get-timestamp (file)
+  "Return the date of a given (FILE)."
+  (setq raw-path
+	(split-string file "**/" t))
+  (setq filename (car(last raw-path)))
+  (car(split-string filename "**-" t))
+  )
+(defun org-roam-date-trasnform-date(file)
+  "Return a org formated date for a given (FILE) - default format YYYY-mm-DD HH:MM."
+  (setq raw-timestamp (org-roam-date-get-timestamp file))
+  (setq year (substring raw-timestamp 0 4))
+  (setq month (substring raw-timestamp 4 6))
+  (setq day (substring raw-timestamp 6 8))
+  (setq hour (substring raw-timestamp 8 10))
+  (setq minutes (substring raw-timestamp 10 12))
+  (format "<%s-%s-%s %s:%s>" year month day hour minutes)
+ )
+
 (defun my/org-roam-filter-by-tag (tag-name)
     "Filter (NODE)s by (TAG-NAME)."
   (lambda (node)
@@ -24,20 +45,37 @@
            (org-roam-node-list))))
 
 (defun org-roam-links-by-tag(tag)
-  "This function gets all the org-roam files with matching tags (TAG)."
+"Return a sorted list of org-roam links with matching tags (TAG)."
   (setq list (my/org-roam-list-notes-by-tag tag))
   (let (value)
-      (dolist (element list value)
-	(setq rawTitle (org-roam-db-query [:select TITLE :from nodes :where (= FILE $s1) ] element))
-	(setq rawId (org-roam-db-query [:select ID :from nodes :where (= FILE $s1)] element))
-	(setq title (car rawTitle))
-	(setq id (car rawId))
-	(setq toWrite (format "[[id:%s][%s]]" (car id) (car title)))
-	(setq value (cons toWrite value))
-	)
+    (dolist (element list value)
+      (setq datestring (string-to-number (org-roam-date-get-timestamp element)))
+      (setq rawTitle (org-roam-db-query [:select TITLE :from nodes :where (= FILE $s1) ] element))
+      (setq rawId (org-roam-db-query [:select ID :from nodes :where (= FILE $s1)] element))
+      (setq title (car rawTitle))
+      (setq id (car rawId))
+      (setq date (org-roam-date-trasnform-date (org-roam-date-get-timestamp element)))
+      (setq link (format "[[id:%s][%s]] - %s" (car id) (car title) (org-roam-date-trasnform-date datestring)))
+      (setq value (cons link value))
       )
-  )
+    )
+	
+  ;;(cl-sort links '< :key 'car)
+  ;;(setq sorted '())
+    ;;(dolist (element links sorted)
+      ;;(setq only-link (car(cdr element)))
+      ;;(add-to-list 'sorted only-link t)
 
+      ;;)
+    
+    )
+
+  
+ 
+  
+(setq teste (org-roam-links-by-tag "Git"))
+(message "%s" teste)
+;;(message test)
 (defun org-roam-tag-search(tags)
   "Search notes via list of tags (TAGS)."
   (let (value)
@@ -56,15 +94,25 @@
 (defun org-roam-links-by-matching-tags(tags)
   "Return a list of links based on a list of (TAGS)."
   (setq files (org-roam-matching-tags-search tags))
-  (let (value)
-      (dolist (element files value)
-	(setq rawTitle (org-roam-db-query [:select TITLE :from nodes :where (= FILE $s1) ] element))
-	(setq rawId (org-roam-db-query [:select ID :from nodes :where (= FILE $s1)] element))
-	(setq title (car rawTitle))
-	(setq id (car rawId))
-	(setq toWrite (format "[[id:%s][%s]]" (car id) (car title)))
-	(setq value (cons toWrite value))
-	)
+  (setq links (let (value)
+    (dolist (element files value)
+      (setq datestring (org-roam-date-get-timestamp element))
+      (setq rawTitle (org-roam-db-query [:select TITLE :from nodes :where (= FILE $s1) ] element))
+      (setq rawId (org-roam-db-query [:select ID :from nodes :where (= FILE $s1)] element))
+      (setq title (car rawTitle))
+      (setq id (car rawId))
+      (setq link (format "[[id:%s][%s]] - %s" (car id) (car title) (org-roam-date-trasnform-date datestring)))
+      (setq toReturn (list (string-to-number datestring) link))
+      (setq value (cons toReturn value))
+      )
+    )
+   )
+  (cl-sort links #'< :key 'car)
+  (setq sorted '())
+    (dolist (element links sorted)
+      (setq only-link (car(cdr element)))
+      (add-to-list 'sorted only-link t)
+
       )
   )
 
@@ -73,21 +121,37 @@
   (seq-uniq (org-roam-db-query [:select tag :from tags]))
   )
 (defun org-roam-insert-by-tag ()
-  "Insert all tagged notes at pointer."
+  "Insert all tagged notes at pointer (TAGS)."
   (interactive)
-  (setq tag (let ((choices (get-all-roam-tags)))
-	    (message "%s" (completing-read "Select one tag:" choices))))
-  (setq nodes-list (org-roam-links-by-tag tag))
-  (setq list-formated (let (value)
-    (dolist (element nodes-list value)
-      (setq toWrite (format "** %s\n" element))
-      (setq value (cons toWrite value)))))
-  (let (value)
-    (dolist (element list-formated value)
-    (insert element)
-    ))
+  (setq continue 1)
+  (setq tags '())
+  (setq all-tags (get-all-roam-tags))
+  (while (= continue 1)
+    (setq user-input (let ((choices all-tags))
+      (message "%s" (completing-read "Tags:" choices))
+      ))
+   (setq tags (cons user-input tags))
+    
+    (if (y-or-n-p "Contiue filtering?")
+      (progn
+	;; code to do something here
+	(setq continue 1)
+      )
+      (progn
+	;; code if user answered no.
+	(setq continue 0)
+      )
+     )
+   )
+  (setq links (org-roam-links-by-matching-tags tags))
+  (dolist (element links)
+    (setq formated-links (format "** %s\n" element))
+    (insert formated-links)
+    )
   )
+
 
 (provide 'tag-list)
 
 ;;; tag-list.el ends here
+(org-roam-insert-by-tag)
