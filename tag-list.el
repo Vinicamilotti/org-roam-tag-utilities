@@ -149,7 +149,6 @@
   )
 
 
-(org-roam-insert-by-tag)
 (provide 'tag-list)
 
 ;;; tag-list.el ends here
