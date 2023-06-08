@@ -148,6 +148,13 @@
     )
   )
 
+(defun org-roam-open-dashboard ()
+"Opens the file with the tag Dashboard.IMPORTANT: Maked sure to have only one file marked with the Dashboard tag."
+(interactive)
+(setq file-raw (my/org-roam-list-notes-by-tag "Dashboard"))
+(setq file (car file-raw))
+(find-file file)
+  )
 
 (provide 'tag-list)
 
