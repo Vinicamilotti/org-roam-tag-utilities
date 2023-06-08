@@ -1,0 +1,24 @@
+#+title: Docs
+* Org-roam-tag-utilities
+** Functions
+*** my/org-roam-filter-by-tag (tag-name)
+     Function created by [[https://systemcrafters.net/][System Crafters]] at [[https://systemcrafters.net/build-a-second-brain-in-emacs/5-org-roam-hacks/][5 Org-roam hacks for Better Productivity in Emacs]] article. Filter notes with a specific tag passed as a parameter (stringp) to the function.
+*** my/org-roam-list-nodes-by-tag (tag-name)
+     Function created by [[https://systemcrafters.net/][System Crafters]] at [[https://systemcrafters.net/build-a-second-brain-in-emacs/5-org-roam-hacks/][5 Org-roam hacks for Better Productivity in Emacs]] article. Uses the [[my/org-roam-filter-by-tag (tag-name)][my/org-roam-filter-by-tag]] function to create a list (listp) whit all file paths with machting tags.
+*** org-roam-links-by-tag(tag)
+    Recive a tag as a parameters and uses the [[my/org-roam-list-nodes-by-tag][my/org-roam-list-nodes-by-tag]] to search the files in Org-roam DB, creates a list of lists containig the nodes Title and ID, returns a sorted (by date) list of links for each node filtered, following the org-roam format:
+#+begin_example
+[[id:org-roam-id][node title]]
+#+end_example
+*** Org-roam-tag-search(tags)
+    Uses the [[my/org-roam-list-nodes-by-tag][my/org-roam-list-nodes-by-tag]] for filter notes from a list of tags passed as a parameter to the function. Returns a list for each tag passed as parameters whit all files containig the  presents whitin the passed list. IMPORTANT: files will be listed more then once if they have more than one maching tags, this is important for other functions that uses this function
+*** org-roam-matching-tags-search(tags)
+    This function runs the [[Org-roam-tag-search(tags)][Org-roam-tag-search]] and grep only the files present in all lists. Returns a list that is the intersection betwen all lists returned by  [[Org-roam-tag-search(tags)][Org-roam-tag-search]].
+*** org-roam-links-by-matching-tags (tags)
+    Do the same as [[org-roam-links-by-tag(tag)][org-roam-links-by-tag(tag)]] but instead of reciving only one tag recives a list of tags, and instead of running [[my/org-roam-list-nodes-by-tag][my/org-roam-list-nodes-by-tag]] directly to filter the files, uses the [[org-roam-matching-tags-search(tags)][org-roam-matching-tags-search(tags)]] function to return a link in the org format for each file with the given matching tags.
+*** get-all-roam-tags
+    Returns a list of all tags present in the org-roam-db
+*** org-roam-insert-by-tag()
+     This is an interactive function that runs [[get-all-roam-tags][get-all-roam-tags]] function to retrive a list of avalible tags and prompts the user to choose aleast one of them. After the user chooses a tag the tag is stored in a tag list then it prompts it again asking if it wants to cotinuing filtering tags, while the user awenser is true (yes or y) this part is repeated. After the user is done with the filtering the function calls [[org-roam-links-by-matching-tags (tags)][org-roam-links-by-matching-tags (tags)]] with the list of tags created before and inserts the list of links the current buffer as headers 2 (** Link)
+*** org-roam-open-dashboard
+  This is an interactive function that runs [[my/org-roam-list-nodes-by-tag][my/org-roam-list-nodes-by-tag]] to open a dashboard or index node. This file must be tagged as :Dashboard:. IMPORTANT: if two or more files haves the :Dashoboard: tag, only the first file in the list returned by [[my/org-roam-list-nodes-by-tag][my/org-roam-list-nodes-by-tag]] will be oppened. Is recommended that the user have only one file with the tag or subscribe the dashboard-tag variable with another tag

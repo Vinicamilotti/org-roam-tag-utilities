@@ -1,0 +1,25 @@
+#+title: README
+* Org-Roam Tag Utilitties
+** Description:
+  - Adds some tag related funcionalities to the Org-roam package.
+** Requirements:
+   - Org-roam
+** Usage:
+*** Using tags:
+   - To set file tags use the #+filetags header
+   - Exemple:
+     #+begin_src org
+       ,#+filetags: :Sometag:
+     #+end_src
+*** Insert links for all files with a specifc tag or with matching tags:
+  - M-x org-roam-insert-by-tag RET
+    - This will open the minibuffer with a list of avaliable tags. Choose at least one. Then a list of org-roam links with the matching tags will be inserted in your buffer.  
+*** Open a dashboard or index node without search for then
+ - Mark your dashboard or index node with the :Dashboard: tag then:
+   - M-x org-roam-open-dashboard RET
+ - Everytime you run this function you will be redirected to the tagged file.
+ - IMPORTANT: If you have more than one file tagged with :Dashboard: the file oppened by the function will be one of them, but not necesserely the one you'r looking for, so is important to tag only one file with :Dashboard: or to customize the (dashboard-tag) variable:
+   #+begin_src emacs-lisp
+     (setq dashboard-tag "Someothertag")
+   #+end_src
+Be sure to do that after you load the package
