@@ -22,3 +22,9 @@
      This is an interactive function that runs [[get-all-roam-tags][get-all-roam-tags]] function to retrive a list of avalible tags and prompts the user to choose aleast one of them. After the user chooses a tag the tag is stored in a tag list then it prompts it again asking if it wants to cotinuing filtering tags, while the user awenser is true (yes or y) this part is repeated. After the user is done with the filtering the function calls [[org-roam-links-by-matching-tags (tags)][org-roam-links-by-matching-tags (tags)]] with the list of tags created before and inserts the list of links the current buffer as headers 2 (** Link)
 *** org-roam-open-dashboard
   This is an interactive function that runs [[my/org-roam-list-nodes-by-tag][my/org-roam-list-nodes-by-tag]] to open a dashboard or index node. This file must be tagged as :Dashboard:. IMPORTANT: if two or more files haves the :Dashoboard: tag, only the first file in the list returned by [[my/org-roam-list-nodes-by-tag][my/org-roam-list-nodes-by-tag]] will be oppened. Is recommended that the user have only one file with the tag or subscribe the dashboard-tag variable with another tag
+* TODO List [0/3]
+** DOING [#A] Improve documentation
+** TODO [#B] Implement some form of separation of concerns
+** TODO [#B] Implement more sorting options [0/2]
+*** TODO Sort links alphabeticly
+*** TODO Sort links by relationship

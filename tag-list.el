@@ -153,8 +153,7 @@
 (interactive)
 (setq file-raw (my/org-roam-list-notes-by-tag dashboard-tag))
 (setq file (car file-raw))
-(find-file file)
-  )
+(find-file file))
 
 (provide 'tag-list)
 
